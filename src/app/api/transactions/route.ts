@@ -11,10 +11,10 @@ export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
   const page     = Math.max(1, parseInt(searchParams.get('page')  ?? '1'))
   const limit    = Math.min(100, parseInt(searchParams.get('limit') ?? '50'))
-  const type     = searchParams.get('type')    // 'deposit' | 'withdrawal' | null
-  const keyword  = searchParams.get('keyword') // 거래내용 검색
-  const dateFrom = searchParams.get('from')    // YYYY-MM-DD
-  const dateTo   = searchParams.get('to')      // YYYY-MM-DD
+  const type     = searchParams.get('type')
+  const keyword  = searchParams.get('keyword')
+  const dateFrom = searchParams.get('from')
+  const dateTo   = searchParams.get('to')
 
   const where: Record<string, unknown> = {}
 
@@ -46,4 +46,12 @@ export async function GET(req: NextRequest) {
     }),
   ])
 
-  retur
+  return NextResponse.json({
+    transactions,
+    total,
+    page,
+    totalPages:         Math.ceil(total / limit),
+    totalDepositSum:    agg._sum.deposit    ?? 0,
+    totalWithdrawalSum: agg._sum.withdrawal ?? 0,
+  })
+}
