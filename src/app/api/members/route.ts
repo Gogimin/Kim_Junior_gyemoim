@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { isAuthenticated } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -41,9 +42,4 @@ export async function POST(req: NextRequest) {
         joinDate:    new Date(joinDate),
       },
     })
-    return NextResponse.json({ member }, { status: 201 })
-  } catch (err) {
-    console.error('[members POST error]', err)
-    return NextResponse.json({ error: String(err) }, { status: 500 })
-  }
-}
+    return NextR

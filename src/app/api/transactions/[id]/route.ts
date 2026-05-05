@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { isAuthenticated } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
@@ -22,7 +23,4 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     })
     return NextResponse.json({ transaction: tx })
   } catch (err) {
-    console.error('[transaction PATCH error]', err)
-    return NextResponse.json({ error: String(err) }, { status: 500 })
-  }
-}
+    console.error('[transaction PATCH error
