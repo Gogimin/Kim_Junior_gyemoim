@@ -3,9 +3,7 @@ import { isAuthenticated } from '@/lib/auth'
 import { parseKakaoExcel } from '@/lib/excel-parser'
 import { prisma } from '@/lib/prisma'
 
-export const config = { api: { bodyParser: false } }
-
-// Next.js App Router에서 파일 업로드 크기 제한 해제
+// App Router route segment config (replaces old export const config)
 export const maxDuration = 30
 
 export async function POST(req: NextRequest) {
