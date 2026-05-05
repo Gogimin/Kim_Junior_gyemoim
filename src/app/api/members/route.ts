@@ -42,4 +42,9 @@ export async function POST(req: NextRequest) {
         joinDate:    new Date(joinDate),
       },
     })
-    return NextR
+    return NextResponse.json({ member }, { status: 201 })
+  } catch (err) {
+    console.error('[members POST error]', err)
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}

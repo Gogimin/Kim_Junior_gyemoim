@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isAuthenticated } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-// PATCH /api/transactions/[id] — 멤버 또는 카테고리 수동 지정
+// PATCH /api/transactions/[id] — 멤버, 카테고리, 메모 수동 지정
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   if (!isAuthenticated(req)) {
     return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 })
@@ -23,4 +23,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     })
     return NextResponse.json({ transaction: tx })
   } catch (err) {
-    console.error('[transaction PATCH error
+    console.error('[transaction PATCH error]', err)
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}

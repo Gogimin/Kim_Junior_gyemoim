@@ -39,6 +39,13 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   }
   try {
     const id = parseInt(params.id)
-    // 소프트 삭제: 거래 내역 연결 유지를 위해 isActive만 false로
     const member = await prisma.member.update({
-      where: { i
+      where: { id },
+      data: { isActive: false },
+    })
+    return NextResponse.json({ member })
+  } catch (err) {
+    console.error('[members DELETE error]', err)
+    return NextResponse.json({ error: String(err) }, { status: 500 })
+  }
+}
