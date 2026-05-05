@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 계모임 멤버
+model Member {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(50)
+  nickname    String?  @db.VarChar(50)   // 입금 적요에 쓰는 이름 (자동 매핑용)
+  monthlyFee  Int      @default(10000)   // 미혼 기준 월 납부액 (원)
+  marriedAt   DateTime? @db.Date        // 결혼일 (이후부터 20,000원)
+  houseNumber Int?                      // 집 번호 1~5 (첫째집~다섯째집)
+  joinDate    DateTime @db.Date          // 계모임 참여 시작일
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  transactions Transaction[]
+
+  @@map("members")
+}
+
+// 출금 카테고리
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(50)
+  color     String   @default("#6B7280") @db.VarChar(7)
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  transactions Transaction[]
+
+  @@map("categories")
+}
+
+// 파일 업로드 이력
+model UploadLog {
+  id           Int      @id @default(autoincrement())
+  filename     String   @db.VarChar(255)
+  periodStart  DateTime @db.Date
+  periodEnd    DateTime @db.Date
+  totalRows    Int
+  insertedRows Int
+  skippedRows  Int
+  uploadedAt   DateTime @default(now())
+
+  transactions Transaction[]
+
+  @@map("upload_logs")
+}
+
+// 거래내역 (핵심 테이블)
+model Transaction {
+  id            Int      @id @default(autoincrement())
+  transactionAt DateTime                        // 거래일시
+  description   String   @db.VarChar(255)       // 거래내용 (적요)
+  withdrawal    Int      @default(0)            // 출금액 (원)
+  deposit       Int      @default(0)            // 입금액 (원)
+  balance       Int                             // 거래 후 잔액
+  memo          String?  @db.VarChar(255)       // 메모
+
+  // 분류 정보 (수동 지정)
+  memberId    Int?
+  categoryId  Int?
+  uploadLogId Int?
+
+  member    Member?    @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  category  Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  uploadLog UploadLog? @relation(fields: [uploadLogId], references: [id])
+
+  // 중복 방지 해시
+  txHash    String   @unique @db.VarChar(64)
+
+  createdAt DateTime @default(now())
+
+  @@index([transactionAt])
+  @@index([memberId])
+  @@index([categoryId])
+  @@map("transactions")
+}
+
+// 서비스 설정 (key-value)
+model Setting {
+  key       String   @id @db.VarChar(100)
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
