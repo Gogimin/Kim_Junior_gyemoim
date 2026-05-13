@@ -32,6 +32,13 @@ interface DepositEntry {
   description: string
 }
 
+interface AdjustmentEntry {
+  id: number
+  amount: number
+  memo: string | null
+  createdAt: string
+}
+
 interface MemberPayment {
   id: number
   name: string
@@ -46,8 +53,10 @@ interface MemberPayment {
   expectedTotal: number
   depositCount: number
   totalDeposited: number
+  totalAdjusted: number
   diff: number
   deposits: DepositEntry[]
+  adjustments: AdjustmentEntry[]
 }
 
 interface PaymentsData {
@@ -57,6 +66,145 @@ interface PaymentsData {
 
 function formatKRW(n: number) {
   return n.toLocaleString('ko-KR') + '원'
+}
+
+// ─── 납부 조정 패널 ────────────────────────────────────────────────
+function AdjustmentPanel({
+  memberId,
+  adjustments,
+  onChanged,
+}: {
+  memberId: number
+  adjustments: AdjustmentEntry[]
+  onChanged: () => void
+}) {
+  const [amount, setAmount]   = useState('')
+  const [sign,   setSign]     = useState<'+' | '-'>('+')
+  const [memo,   setMemo]     = useState('')
+  const [saving, setSaving]   = useState(false)
+  const [deletingId, setDeletingId] = useState<number | null>(null)
+
+  async function handleAdd(e: React.FormEvent) {
+    e.preventDefault()
+    const n = parseInt(amount)
+    if (!n || n <= 0) return
+    setSaving(true)
+    try {
+      const res = await fetch('/api/adjustments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          memberId,
+          amount: sign === '-' ? -n : n,
+          memo: memo.trim() || null,
+        }),
+      })
+      if (res.ok) {
+        setAmount('')
+        setMemo('')
+        onChanged()
+      }
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleDelete(id: number) {
+    setDeletingId(id)
+    try {
+      const res = await fetch(`/api/adjustments/${id}`, { method: 'DELETE' })
+      if (res.ok) onChanged()
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  return (
+    <div className="border-t border-yellow-100 bg-yellow-50 px-4 sm:px-5 py-4">
+      <p className="text-xs font-semibold text-gray-600 mb-3">납부 조정</p>
+
+      {/* 기존 조정 내역 */}
+      {adjustments.length > 0 && (
+        <div className="mb-3 flex flex-col gap-1.5">
+          {adjustments.map(adj => (
+            <div key={adj.id}
+              className="flex items-center justify-between gap-2 bg-white rounded-lg px-3 py-2 border border-yellow-100">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className={`text-xs font-bold shrink-0 ${adj.amount >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                  {adj.amount >= 0 ? '+' : ''}{adj.amount.toLocaleString()}원
+                </span>
+                {adj.memo && (
+                  <span className="text-xs text-gray-500 truncate">{adj.memo}</span>
+                )}
+                <span className="text-[10px] text-gray-300 shrink-0">
+                  {new Date(adj.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
+                </span>
+              </div>
+              <button
+                onClick={() => handleDelete(adj.id)}
+                disabled={deletingId === adj.id}
+                className="shrink-0 text-gray-300 hover:text-red-400 transition-colors text-sm disabled:opacity-40"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 조정 추가 폼 */}
+      <form onSubmit={handleAdd} className="flex flex-wrap gap-2 items-end">
+        {/* +/- 토글 */}
+        <div className="flex rounded-lg overflow-hidden border border-gray-200">
+          <button type="button"
+            onClick={() => setSign('+')}
+            className={`px-3 py-1.5 text-xs font-bold transition-colors ${
+              sign === '+' ? 'bg-green-500 text-white' : 'bg-white text-gray-400 hover:bg-gray-50'
+            }`}>
+            +
+          </button>
+          <button type="button"
+            onClick={() => setSign('-')}
+            className={`px-3 py-1.5 text-xs font-bold transition-colors ${
+              sign === '-' ? 'bg-red-500 text-white' : 'bg-white text-gray-400 hover:bg-gray-50'
+            }`}>
+            −
+          </button>
+        </div>
+
+        {/* 금액 */}
+        <input
+          type="number"
+          value={amount}
+          onChange={e => setAmount(e.target.value)}
+          placeholder="금액 (원)"
+          min="1"
+          required
+          className="w-28 px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm bg-white
+                     focus:outline-none focus:border-yellow-400"
+        />
+
+        {/* 메모 */}
+        <input
+          type="text"
+          value={memo}
+          onChange={e => setMemo(e.target.value)}
+          placeholder="사유 (예: 신류성 대납)"
+          className="flex-1 min-w-[120px] px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm bg-white
+                     focus:outline-none focus:border-yellow-400"
+        />
+
+        <button type="submit" disabled={saving || !amount}
+          className="shrink-0 px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-gray-900
+                     font-semibold rounded-lg text-xs transition-colors disabled:opacity-60">
+          {saving ? '저장 중...' : '추가'}
+        </button>
+      </form>
+      <p className="text-[10px] text-gray-400 mt-2">
+        + 는 실제 납부로 추가 인정 · − 는 차감 (대납 금액 되돌리기 등)
+      </p>
+    </div>
+  )
 }
 
 // 멤버 한 명의 인라인 편집 폼
@@ -200,6 +348,7 @@ export default function MembersPage() {
   const [editingId, setEditingId]         = useState<number | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
   const [expandedId, setExpandedId]       = useState<number | null>(null)
+  const [adjustingId, setAdjustingId]     = useState<number | null>(null)
   const [houseFilter, setHouseFilter]     = useState<number | null>(null) // null = 전체
 
   // 새 멤버 추가 폼 상태
@@ -440,10 +589,11 @@ export default function MembersPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {payData.map(mp => {
-            const memberInfo   = members.find(m => m.id === mp.id)
+            const memberInfo    = members.find(m => m.id === mp.id)
             const isEditing    = editingId === mp.id
             const isExpanded   = expandedId === mp.id
             const isConfirming = confirmDeleteId === mp.id
+            const isAdjusting  = adjustingId === mp.id
             const paidPct      = mp.expectedTotal > 0
               ? Math.min(100, Math.round((mp.totalDeposited / mp.expectedTotal) * 100)) : 0
             const diffColor = mp.diff >= 0 ? 'text-green-600' : 'text-red-500'
@@ -499,7 +649,25 @@ export default function MembersPage() {
                       ) : (
                         <>
                           <button
-                            onClick={() => { setEditingId(isEditing ? null : mp.id); setConfirmDeleteId(null) }}
+                            onClick={() => {
+                              setAdjustingId(isAdjusting ? null : mp.id)
+                              setEditingId(null)
+                              setConfirmDeleteId(null)
+                            }}
+                            className={`px-2.5 sm:px-3 py-1.5 text-xs rounded-lg transition-colors ${
+                              isAdjusting
+                                ? 'bg-orange-100 text-orange-700 font-semibold'
+                                : 'text-gray-400 hover:text-orange-500 hover:bg-orange-50'
+                            }`}>
+                            {isAdjusting ? '✕' : '조정'}
+                            {mp.adjustments.length > 0 && !isAdjusting && (
+                              <span className="ml-1 text-[9px] bg-orange-100 text-orange-600 px-1 py-0.5 rounded-full">
+                                {mp.adjustments.length}
+                              </span>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => { setEditingId(isEditing ? null : mp.id); setConfirmDeleteId(null); setAdjustingId(null) }}
                             className={`px-2.5 sm:px-3 py-1.5 text-xs rounded-lg transition-colors ${
                               isEditing
                                 ? 'bg-yellow-100 text-yellow-700 font-semibold'
@@ -507,7 +675,7 @@ export default function MembersPage() {
                             }`}>
                             {isEditing ? '✕' : '수정'}
                           </button>
-                          <button onClick={() => { setConfirmDeleteId(mp.id); setEditingId(null) }}
+                          <button onClick={() => { setConfirmDeleteId(mp.id); setEditingId(null); setAdjustingId(null) }}
                             className="px-2.5 sm:px-3 py-1.5 text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                             삭제
                           </button>
@@ -529,7 +697,14 @@ export default function MembersPage() {
                     <div className="bg-gray-50 rounded-xl p-3">
                       <p className="text-[10px] text-gray-400 mb-1">총 입금액</p>
                       <p className="font-bold text-gray-900 text-sm">{formatKRW(mp.totalDeposited)}</p>
-                      <p className="text-[10px] text-gray-400 mt-0.5">{mp.depositCount}건</p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">
+                        {mp.depositCount}건
+                        {mp.totalAdjusted !== 0 && (
+                          <span className={`ml-1 ${mp.totalAdjusted > 0 ? 'text-green-500' : 'text-red-400'}`}>
+                            {mp.totalAdjusted > 0 ? '+' : ''}{mp.totalAdjusted.toLocaleString()} 조정
+                          </span>
+                        )}
+                      </p>
                     </div>
                     <div className="bg-gray-50 rounded-xl p-3">
                       <p className="text-[10px] text-gray-400 mb-1">예상 납부액</p>
@@ -576,6 +751,15 @@ export default function MembersPage() {
                     member={memberInfo}
                     onSave={data => handleEdit(mp.id, data)}
                     onCancel={() => setEditingId(null)}
+                  />
+                )}
+
+                {/* 납부 조정 패널 */}
+                {isAdjusting && (
+                  <AdjustmentPanel
+                    memberId={mp.id}
+                    adjustments={mp.adjustments}
+                    onChanged={() => { loadAll() }}
                   />
                 )}
 

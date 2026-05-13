@@ -19,9 +19,24 @@ model Member {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
 
-  transactions Transaction[]
+  transactions  Transaction[]
+  adjustments   PaymentAdjustment[]
 
   @@map("members")
+}
+
+// 납부 수동 조정 (대납, 환불 등)
+model PaymentAdjustment {
+  id        Int      @id @default(autoincrement())
+  memberId  Int
+  amount    Int      // 양수 = 추가 납부 인정, 음수 = 차감
+  memo      String?  @db.VarChar(255)
+  createdAt DateTime @default(now())
+
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@map("payment_adjustments")
 }
 
 // 출금 카테고리
