@@ -159,73 +159,73 @@ export default function TransactionsPage() {
     <AppLayout>
 
       {/* 필터 */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4">
-        <form onSubmit={handleSearch} className="flex flex-wrap gap-3 items-end">
-          <div className="flex gap-1 bg-gray-100 rounded-xl p-1">
-            {[['', '전체'], ['deposit', '입금'], ['withdrawal', '출금']].map(([v, label]) => (
-              <button key={v} type="button" onClick={() => setType(v)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors
-                  ${type === v ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
-                {label}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3 sm:p-4 mb-4">
+        <form onSubmit={handleSearch} className="flex flex-col gap-2.5">
+          {/* 1행: 타입 + 검색 */}
+          <div className="flex gap-2 items-center">
+            <div className="flex gap-1 bg-gray-100 rounded-xl p-1 shrink-0">
+              {[['', '전체'], ['deposit', '입금'], ['withdrawal', '출금']].map(([v, label]) => (
+                <button key={v} type="button" onClick={() => setType(v)}
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors
+                    ${type === v ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2 flex-1">
+              <input
+                value={inputKeyword}
+                onChange={e => setInputKeyword(e.target.value)}
+                placeholder="거래내용 검색..."
+                className="flex-1 min-w-0 px-3 py-2 border border-gray-200 rounded-xl text-sm
+                           focus:outline-none focus:border-yellow-400 transition-colors"
+              />
+              <button type="submit"
+                className="shrink-0 px-3 sm:px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900
+                           font-semibold rounded-xl text-sm transition-colors">
+                검색
               </button>
-            ))}
+            </div>
           </div>
 
-          <div className="flex gap-2 flex-1 min-w-[200px]">
-            <input
-              value={inputKeyword}
-              onChange={e => setInputKeyword(e.target.value)}
-              placeholder="거래내용 검색..."
-              className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm
-                         focus:outline-none focus:border-yellow-400 transition-colors"
-            />
-            <button type="submit"
-              className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900
-                         font-semibold rounded-xl text-sm transition-colors">
-              검색
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2">
+          {/* 2행: 날짜 + 초기화 */}
+          <div className="flex items-center gap-2 flex-wrap">
             <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400" />
+              className="flex-1 min-w-[130px] px-3 py-2 border border-gray-200 rounded-xl text-sm
+                         focus:outline-none focus:border-yellow-400" />
             <span className="text-gray-400 text-sm">~</span>
             <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400" />
+              className="flex-1 min-w-[130px] px-3 py-2 border border-gray-200 rounded-xl text-sm
+                         focus:outline-none focus:border-yellow-400" />
+            <button type="button" onClick={handleReset}
+              className="shrink-0 px-3 py-2 text-gray-400 hover:text-gray-600 text-sm transition-colors">
+              초기화
+            </button>
           </div>
-
-          <button type="button" onClick={handleReset}
-            className="px-3 py-2 text-gray-400 hover:text-gray-600 text-sm transition-colors">
-            초기화
-          </button>
         </form>
       </div>
 
       {/* 결과 수 + 합계 */}
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-3 px-1">
-        <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 mb-3 px-1">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm text-gray-500">
             총 <span className="font-semibold text-gray-900">{total.toLocaleString()}건</span>
           </span>
-          {(depositSum > 0 || withdrawalSum > 0) && (
-            <>
-              <span className="text-gray-200">|</span>
-              {depositSum > 0 && (
-                <span className="text-sm">
-                  입금 합계 <span className="font-semibold text-green-600">+{depositSum.toLocaleString()}원</span>
-                </span>
-              )}
-              {withdrawalSum > 0 && (
-                <span className="text-sm">
-                  출금 합계 <span className="font-semibold text-orange-500">-{withdrawalSum.toLocaleString()}원</span>
-                </span>
-              )}
-            </>
+          {depositSum > 0 && (
+            <span className="text-xs sm:text-sm">
+              입금 <span className="font-semibold text-green-600">+{depositSum.toLocaleString()}원</span>
+            </span>
+          )}
+          {withdrawalSum > 0 && (
+            <span className="text-xs sm:text-sm">
+              출금 <span className="font-semibold text-orange-500">-{withdrawalSum.toLocaleString()}원</span>
+            </span>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-400">{page} / {totalPages} 페이지</span>
-          <span className="text-xs text-blue-400">✏️ 메모 칸 클릭 시 편집</span>
+        <div className="flex items-center gap-2 text-xs text-gray-400">
+          <span>{page} / {totalPages} 페이지</span>
+          <span>·</span>
+          <span>✏️ 메모 클릭 편집</span>
         </div>
       </div>
 
@@ -236,49 +236,49 @@ export default function TransactionsPage() {
         ) : items.length === 0 ? (
           <div className="text-center py-16 text-gray-400 text-sm">조건에 맞는 거래가 없습니다.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-0">
+            <table className="w-full text-sm" style={{ minWidth: '560px' }}>
               <thead>
                 <tr className="bg-gray-50 text-xs text-gray-400 uppercase tracking-wide border-b border-gray-100">
-                  <th className="px-4 py-3 text-left font-medium">일시</th>
-                  <th className="px-4 py-3 text-left font-medium">내용</th>
-                  <th className="px-4 py-3 text-right font-medium text-green-600">입금</th>
-                  <th className="px-4 py-3 text-right font-medium text-orange-500">출금</th>
-                  <th className="px-4 py-3 text-right font-medium">잔액</th>
-                  <th className="px-4 py-3 text-left font-medium">메모</th>
+                  <th className="px-3 sm:px-4 py-3 text-left font-medium">일시</th>
+                  <th className="px-3 sm:px-4 py-3 text-left font-medium">내용</th>
+                  <th className="px-3 sm:px-4 py-3 text-right font-medium text-green-600">입금</th>
+                  <th className="px-3 sm:px-4 py-3 text-right font-medium text-orange-500">출금</th>
+                  <th className="px-3 sm:px-4 py-3 text-right font-medium">잔액</th>
+                  <th className="px-3 sm:px-4 py-3 text-left font-medium">메모</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {items.map(tx => (
                   <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">
+                    <td className="px-3 sm:px-4 py-3 text-gray-400 text-xs whitespace-nowrap">
                       {new Date(tx.transactionAt).toLocaleDateString('ko-KR', {
                         year: '2-digit', month: '2-digit', day: '2-digit',
                       })}
-                      <span className="ml-1 text-gray-300">
+                      <span className="block sm:inline sm:ml-1 text-gray-300">
                         {new Date(tx.transactionAt).toLocaleTimeString('ko-KR', {
                           hour: '2-digit', minute: '2-digit',
                         })}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
-                      <span className="font-medium text-gray-800">{tx.description || '—'}</span>
+                    <td className="px-3 sm:px-4 py-3">
+                      <span className="font-medium text-gray-800 text-xs sm:text-sm">{tx.description || '—'}</span>
                       {tx.member && (
-                        <span className="ml-2 text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-md">
+                        <span className="block sm:inline sm:ml-2 text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-md mt-0.5 sm:mt-0 w-fit">
                           {tx.member.name}
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-right font-semibold text-green-600">
+                    <td className="px-3 sm:px-4 py-3 text-right font-semibold text-green-600 text-xs sm:text-sm whitespace-nowrap">
                       {tx.deposit > 0 ? '+' + tx.deposit.toLocaleString() : ''}
                     </td>
-                    <td className="px-4 py-3 text-right font-semibold text-orange-500">
+                    <td className="px-3 sm:px-4 py-3 text-right font-semibold text-orange-500 text-xs sm:text-sm whitespace-nowrap">
                       {tx.withdrawal > 0 ? '-' + tx.withdrawal.toLocaleString() : ''}
                     </td>
-                    <td className="px-4 py-3 text-right text-gray-600 text-xs">
+                    <td className="px-3 sm:px-4 py-3 text-right text-gray-600 text-xs whitespace-nowrap">
                       {tx.balance.toLocaleString()}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 sm:px-4 py-3">
                       <MemoCell tx={tx} onSaved={handleMemoSaved} />
                     </td>
                   </tr>

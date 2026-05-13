@@ -95,35 +95,23 @@ function MemberEditForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-4 bg-yellow-50 border-t border-yellow-100">
-      <div className="flex flex-wrap gap-2">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 p-3 sm:p-4 bg-yellow-50 border-t border-yellow-100">
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
         {/* 이름 */}
-        <div className="flex flex-col gap-1 min-w-[100px]">
+        <div className="flex flex-col gap-1">
           <label className="text-[10px] text-gray-400 font-medium uppercase">이름</label>
           <input required value={form.name}
             onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            className="px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm bg-white
-                       focus:outline-none focus:border-yellow-400" />
-        </div>
-
-        {/* 적요 키워드 */}
-        <div className="flex flex-col gap-1 min-w-[180px]">
-          <label className="text-[10px] text-gray-400 font-medium uppercase">
-            입금 적요 키워드 <span className="normal-case text-gray-300">(쉼표로 여러 개 가능)</span>
-          </label>
-          <input value={form.nickname}
-            onChange={e => setForm(f => ({ ...f, nickname: e.target.value }))}
-            placeholder="예: 신대성,신연우"
-            className="px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm bg-white
+            className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm bg-white
                        focus:outline-none focus:border-yellow-400" />
         </div>
 
         {/* 집 번호 */}
-        <div className="flex flex-col gap-1 min-w-[110px]">
+        <div className="flex flex-col gap-1">
           <label className="text-[10px] text-gray-400 font-medium uppercase">집 번호</label>
           <select value={form.houseNumber}
             onChange={e => setForm(f => ({ ...f, houseNumber: e.target.value }))}
-            className="px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm bg-white
+            className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm bg-white
                        focus:outline-none focus:border-yellow-400">
             <option value="">미지정</option>
             {[1,2,3,4,5].map(n => (
@@ -132,21 +120,33 @@ function MemberEditForm({
           </select>
         </div>
 
+        {/* 적요 키워드 */}
+        <div className="flex flex-col gap-1 col-span-2 sm:col-span-1 sm:min-w-[180px]">
+          <label className="text-[10px] text-gray-400 font-medium uppercase">
+            입금 키워드 <span className="normal-case text-gray-300">(쉼표 구분)</span>
+          </label>
+          <input value={form.nickname}
+            onChange={e => setForm(f => ({ ...f, nickname: e.target.value }))}
+            placeholder="예: 신대성,신연우"
+            className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm bg-white
+                       focus:outline-none focus:border-yellow-400" />
+        </div>
+
         {/* 월 납부액 */}
-        <div className="flex flex-col gap-1 min-w-[110px]">
+        <div className="flex flex-col gap-1">
           <label className="text-[10px] text-gray-400 font-medium uppercase">미혼 납부액</label>
           <input type="number" value={form.monthlyFee}
             onChange={e => setForm(f => ({ ...f, monthlyFee: e.target.value }))}
-            className="px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm bg-white
+            className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm bg-white
                        focus:outline-none focus:border-yellow-400" />
         </div>
 
         {/* 참여 시작일 */}
-        <div className="flex flex-col gap-1 min-w-[130px]">
+        <div className="flex flex-col gap-1">
           <label className="text-[10px] text-gray-400 font-medium uppercase">참여 시작일</label>
           <input type="date" required value={form.joinDate}
             onChange={e => setForm(f => ({ ...f, joinDate: e.target.value }))}
-            className="px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm bg-white
+            className="w-full px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm bg-white
                        focus:outline-none focus:border-yellow-400" />
         </div>
       </div>
@@ -160,7 +160,7 @@ function MemberEditForm({
           <span className="text-sm text-gray-700">결혼함 (결혼 이후 20,000원/월)</span>
         </label>
         {form.isMarried && (
-          <div className="flex items-center gap-3 ml-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 ml-6">
             <div className="flex flex-col gap-1">
               <label className="text-[10px] text-gray-400 font-medium uppercase">결혼일</label>
               <input type="date" required={form.isMarried} value={form.marriedAt}
@@ -168,7 +168,7 @@ function MemberEditForm({
                 className="px-2.5 py-1.5 border border-yellow-300 rounded-lg text-sm bg-white
                            focus:outline-none focus:border-yellow-400" />
             </div>
-            <p className="text-xs text-gray-400 mt-4">
+            <p className="text-xs text-gray-400 sm:mt-4">
               결혼 전 {formatKRW(parseInt(form.monthlyFee) || 10000)}/월 → 결혼 후 20,000원/월
             </p>
           </div>
@@ -302,14 +302,14 @@ export default function MembersPage() {
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-lg font-bold text-gray-900">납부 현황</h1>
+          <h1 className="text-base sm:text-lg font-bold text-gray-900">납부 현황</h1>
           <p className="text-xs text-gray-400 mt-0.5">
             계모임 운영 <span className="font-semibold text-gray-600">{totalMonths}개월</span> 기준
           </p>
         </div>
         <button onClick={() => setShowAddForm(v => !v)}
-          className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900
-                     font-semibold rounded-xl text-sm transition-colors">
+          className="px-3 sm:px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900
+                     font-semibold rounded-xl text-xs sm:text-sm transition-colors">
           {showAddForm ? '✕ 닫기' : '+ 멤버 추가'}
         </button>
       </div>
@@ -355,43 +355,43 @@ export default function MembersPage() {
         <div className="bg-white rounded-2xl border border-yellow-200 shadow-sm p-5 mb-5">
           <h2 className="text-sm font-semibold text-gray-700 mb-4">새 멤버 추가</h2>
           <form onSubmit={handleAdd} className="flex flex-col gap-4">
-            <div className="flex flex-wrap gap-3 items-end">
-              <div className="flex flex-col gap-1 min-w-[110px]">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3">
+              <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">이름 *</label>
                 <input required value={addForm.name}
                   onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))}
                   placeholder="홍길동"
-                  className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400" />
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400" />
               </div>
-              <div className="flex flex-col gap-1 min-w-[180px]">
-                <label className="text-xs text-gray-400">입금 적요 키워드 <span className="text-gray-300">(쉼표로 여러 개)</span></label>
-                <input value={addForm.nickname}
-                  onChange={e => setAddForm(f => ({ ...f, nickname: e.target.value }))}
-                  placeholder="예: 신대성,신연우"
-                  className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400" />
-              </div>
-              <div className="flex flex-col gap-1 min-w-[110px]">
+              <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">집 번호</label>
                 <select value={addForm.houseNumber}
                   onChange={e => setAddForm(f => ({ ...f, houseNumber: e.target.value }))}
-                  className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400 bg-white">
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400 bg-white">
                   <option value="">미지정</option>
                   {[1,2,3,4,5].map(n => (
                     <option key={n} value={n}>{HOUSE_LABELS[n]}</option>
                   ))}
                 </select>
               </div>
-              <div className="flex flex-col gap-1 min-w-[110px]">
+              <div className="flex flex-col gap-1 col-span-2 sm:col-span-1 sm:min-w-[180px]">
+                <label className="text-xs text-gray-400">입금 키워드 <span className="text-gray-300">(쉼표 구분)</span></label>
+                <input value={addForm.nickname}
+                  onChange={e => setAddForm(f => ({ ...f, nickname: e.target.value }))}
+                  placeholder="예: 신대성,신연우"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400" />
+              </div>
+              <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">미혼 납부액</label>
                 <input type="number" value={addForm.monthlyFee}
                   onChange={e => setAddForm(f => ({ ...f, monthlyFee: e.target.value }))}
-                  className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400" />
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400" />
               </div>
-              <div className="flex flex-col gap-1 min-w-[140px]">
+              <div className="flex flex-col gap-1">
                 <label className="text-xs text-gray-400">참여 시작일 *</label>
                 <input type="date" required value={addForm.joinDate}
                   onChange={e => setAddForm(f => ({ ...f, joinDate: e.target.value }))}
-                  className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400" />
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400" />
               </div>
             </div>
             <div className="flex flex-col gap-2">
@@ -402,14 +402,14 @@ export default function MembersPage() {
                 <span className="text-sm text-gray-700">결혼함 (이후 20,000원/월)</span>
               </label>
               {addForm.isMarried && (
-                <div className="ml-6 flex items-center gap-3">
+                <div className="ml-6 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                   <div className="flex flex-col gap-1">
                     <label className="text-xs text-gray-400">결혼일</label>
                     <input type="date" required={addForm.isMarried} value={addForm.marriedAt}
                       onChange={e => setAddForm(f => ({ ...f, marriedAt: e.target.value }))}
                       className="px-3 py-2 border border-yellow-300 rounded-xl text-sm bg-yellow-50 focus:outline-none focus:border-yellow-400" />
                   </div>
-                  <p className="text-xs text-gray-400 mt-4">
+                  <p className="text-xs text-gray-400 sm:mt-4">
                     결혼 전 {formatKRW(parseInt(addForm.monthlyFee)||10000)}/월 → 결혼 후 20,000원/월
                   </p>
                 </div>
@@ -453,11 +453,11 @@ export default function MembersPage() {
               <div key={mp.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
                 {/* 카드 본문 */}
-                <div className="px-5 py-4">
+                <div className="px-4 sm:px-5 py-4">
                   {/* 이름 행 */}
-                  <div className="flex items-start justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-gray-900">{mp.name}</span>
+                  <div className="flex items-start justify-between gap-2 mb-2.5">
+                    <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                      <span className="font-bold text-gray-900 text-sm sm:text-base">{mp.name}</span>
                       {hn && HOUSE_STYLES[hn] && (
                         <span
                           style={{
@@ -465,19 +465,19 @@ export default function MembersPage() {
                             color: HOUSE_STYLES[hn].color,
                             border: `1px solid ${HOUSE_STYLES[hn].border}`,
                           }}
-                          className="text-xs px-2 py-0.5 rounded-full font-medium"
+                          className="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
                         >
                           {HOUSE_LABELS[hn]}
                         </span>
                       )}
                       {mp.marriedAt && (
-                        <span className="text-xs bg-pink-50 text-pink-500 px-2 py-0.5 rounded-full">
+                        <span className="text-xs bg-pink-50 text-pink-500 px-2 py-0.5 rounded-full shrink-0">
                           💍 결혼
                         </span>
                       )}
                       {mp.nickname && (
-                        <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
-                          적요: {mp.nickname}
+                        <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full truncate max-w-[120px] sm:max-w-none">
+                          {mp.nickname}
                         </span>
                       )}
                     </div>
@@ -486,13 +486,13 @@ export default function MembersPage() {
                     <div className="flex items-center gap-1 shrink-0">
                       {isConfirming ? (
                         <>
-                          <span className="text-xs text-gray-500 mr-1">삭제할까요?</span>
+                          <span className="text-xs text-gray-500 hidden sm:inline mr-1">삭제할까요?</span>
                           <button onClick={() => handleDelete(mp.id)}
-                            className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-semibold transition-colors">
+                            className="px-2.5 sm:px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-semibold transition-colors">
                             삭제
                           </button>
                           <button onClick={() => setConfirmDeleteId(null)}
-                            className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg text-xs transition-colors">
+                            className="px-2.5 sm:px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg text-xs transition-colors">
                             취소
                           </button>
                         </>
@@ -500,15 +500,15 @@ export default function MembersPage() {
                         <>
                           <button
                             onClick={() => { setEditingId(isEditing ? null : mp.id); setConfirmDeleteId(null) }}
-                            className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
+                            className={`px-2.5 sm:px-3 py-1.5 text-xs rounded-lg transition-colors ${
                               isEditing
                                 ? 'bg-yellow-100 text-yellow-700 font-semibold'
                                 : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
                             }`}>
-                            {isEditing ? '✕ 닫기' : '수정'}
+                            {isEditing ? '✕' : '수정'}
                           </button>
                           <button onClick={() => { setConfirmDeleteId(mp.id); setEditingId(null) }}
-                            className="px-3 py-1.5 text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                            className="px-2.5 sm:px-3 py-1.5 text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                             삭제
                           </button>
                         </>
@@ -517,7 +517,7 @@ export default function MembersPage() {
                   </div>
 
                   {/* 서브 텍스트 */}
-                  <p className="text-xs text-gray-400 mb-3">
+                  <p className="text-xs text-gray-400 mb-3 leading-relaxed">
                     참여 {mp.eligibleMonths}개월
                     {mp.marriedAt && mp.singleMonths > 0
                       ? ` · 미혼 ${mp.singleMonths}개월(${formatKRW(mp.monthlyFee)}) + 결혼 ${mp.marriedMonths}개월(20,000원)`
@@ -525,7 +525,7 @@ export default function MembersPage() {
                   </p>
 
                   {/* 수치 3칸 */}
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
                     <div className="bg-gray-50 rounded-xl p-3">
                       <p className="text-[10px] text-gray-400 mb-1">총 입금액</p>
                       <p className="font-bold text-gray-900 text-sm">{formatKRW(mp.totalDeposited)}</p>
